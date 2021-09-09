@@ -1,0 +1,7 @@
+##Lustre Telegraf Config
+readonly fs=""	## Mount path of File System for quota
+readonly filesystems=""	## Space seperated list of Lustre file systems to check
+readonly map_file="" ## Path to file that maps IPs to hostnames for clients
+readonly paths="" ## Paths to check the ls time on to verify FS functionality/perf
+readonly files="" ## Files to stat to verify FS functionality/mount/perf
+readonly mgs="" ## MGS host to check with lctl ping eg. 172.30.32.2@o2ib

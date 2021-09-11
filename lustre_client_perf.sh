@@ -6,7 +6,7 @@ source /etc/telegraf/lustre/lustre_config
 if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cut -d' ' -f 1) -eq 0 ]; then	
 	test_host=$(nslookup "${test_ip}" | cut -d' ' -f 3 | rev | cut -c 2- | rev)
 	if [ "${test_host}" != "${test_hostname}" ]; then
-		## DNS lookup failed; aborting map update this hour
+		# DNS lookup failed; aborting map update this hour
 		:
 	else
 		rm -rf ${map_file}

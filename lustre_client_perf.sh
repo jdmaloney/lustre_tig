@@ -2,6 +2,22 @@
 
 source /etc/telegraf/lustre/lustre_config
 
+## If the map file doesn't exist/is empty or at 15 past the hour update the map file of clients
+if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cut -d' ' -f 1) -eq 0 ]; then	
+	test_host=$(nslookup 172.30.32.2 | cut -d' ' -f 3 | rev | cut -c 2- | rev)
+	if [ "${test_host}" != "tgio01a.internal.ncsa.edu" ]; then
+		## DNS lookup failed; aborting map update this hour
+		:
+	else
+		rm -rf ${map_file}
+		ips=($(ls /proc/fs/lustre/obdfilter/taiga-*/exports/ | grep "@" | sort -u | cut -d'@' -f 1 | xargs))
+		for i in ${ips[@]}
+		do
+			echo ${i}" "$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev) >> ${map_file}
+		done
+	fi
+fi
+
 ost_mdt=($(ls /proc/fs/lustre/obdfilter/))
 
 for d in ${ost_mdt[@]}

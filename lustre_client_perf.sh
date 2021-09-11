@@ -4,8 +4,8 @@ source /etc/telegraf/lustre/lustre_config
 
 ## If the map file doesn't exist/is empty or at 15 past the hour update the map file of clients
 if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cut -d' ' -f 1) -eq 0 ]; then	
-	test_host=$(nslookup 172.30.32.2 | cut -d' ' -f 3 | rev | cut -c 2- | rev)
-	if [ "${test_host}" != "tgio01a.internal.ncsa.edu" ]; then
+	test_host=$(nslookup "${test_ip}" | cut -d' ' -f 3 | rev | cut -c 2- | rev)
+	if [ "${test_host}" != "${test_hostname}" ]; then
 		## DNS lookup failed; aborting map update this hour
 		:
 	else

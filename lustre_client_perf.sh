@@ -13,7 +13,10 @@ if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cu
 		ips=($(ls /proc/fs/lustre/obdfilter/taiga-*/exports/ | grep "@" | grep -v "@lo" | sort -u | cut -d'@' -f 1 | xargs))
 		for i in ${ips[@]}
 		do
-			echo ${i}" "$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev) >> ${map_file}
+			hostname=$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev)
+			if [ ${hostname} != "can'" ]; then
+				echo "${i}" "${hostname}" >> ${map_file}
+			fi
 		done
 	fi
 fi
@@ -27,11 +30,13 @@ do
 	do
 		ip=$(echo ${c} | cut -d'@' -f 1)
 		client_name=$(grep "${ip}" ${map_file} | awk '{print $2}')
-		fs=$(echo "${d}" | cut -d'-' -f 1)
-		disk_type=$(echo "${d}" | cut -d'-' -f 2 | cut -c 1-3 )
-		stats_line=$(grep -v snapshot /proc/fs/lustre/obdfilter/${d}/exports/${c}/stats | awk '{print $1"="$8}' | xargs | sed 's/\ /,/g')
-		if [ -n "${stats_line}" ]; then
-			echo lustre_client_perf,fs=${fs},disk_type=${disk_type},disk=${d},client=${client_name} ${stats_line}
+		if [ "${client_name}" != "" ]; then
+			fs=$(echo "${d}" | cut -d'-' -f 1)
+			disk_type=$(echo "${d}" | cut -d'-' -f 2 | cut -c 1-3 )
+			stats_line=$(grep -v snapshot /proc/fs/lustre/obdfilter/${d}/exports/${c}/stats | awk '{print $1"="$8}' | xargs | sed 's/\ /,/g' | sed 's/=$/=0/' | sed 's/=,/=0/g')
+			if [ -n "${stats_line}" ]; then
+				echo lustre_client_perf,fs=${fs},disk_type=${disk_type},disk=${d},client=${client_name} ${stats_line}
+			fi
 		fi
 	done
 done

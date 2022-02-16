@@ -29,7 +29,7 @@ do
 	for c in ${clients[@]}
 	do
 		ip=$(echo ${c} | cut -d'@' -f 1)
-		client_name=$(grep "${ip}" ${map_file} | awk '{print $2}')
+		client_name=$(awk -v ip="${ip}" '$1 == ip {print $2}' ${map_file})
 		if [ "${client_name}" != "" ]; then
 			fs=$(echo "${d}" | cut -d'-' -f 1)
 			disk_type=$(echo "${d}" | cut -d'-' -f 2 | cut -c 1-3 )

@@ -3,7 +3,7 @@
 source /etc/telegraf/lustre/lustre_config
 
 ## Lustre Ping
-lping=$(/usr/sbin/lctl ping ${mgs} | head -n 1)
+lping=$(sudo /usr/sbin/lctl ping ${mgs} | head -n 1)
 
 if [ -z $(echo ${lping} | grep -i error) ]; then
 	echo "lctl_ping,target=${mgs} ping_error=0"

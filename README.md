@@ -19,7 +19,7 @@ Checks the health of MGT/MDT/OST mounts on the MGS/MDS/OSS machines respectively
 Checks the fill of all the OSTs and MDTs to ensure their usage is remaining balanced and within an acceptable level of fill.  Also it checks to make sure all OSTs and MDTs are in an "ACTIVE" state.  This needs to be run from a client that mounts the file system.  We run this check from our storage service nodes. 
 
 ## Lustre Client Health
-This check is run on all Lustre clients to verify that they have mount and can ping the MGS with lctl ping. It also can check and record time to ls and stat certain path(s) and file(s) on the file system to test responsiveness of the mount.  You many not want that check on clients depending on your preferences, it can be commented out if desired.   
+This check is run on all Lustre clients to verify that they have mount and can ping the MGS with lctl ping. It also can check and record time to ls and stat certain path(s) and file(s) on the file system to test responsiveness of the mount.  You many not want that check on clients depending on your preferences, it can be commented out if desired.  If used, allow the telegraf user to use sudo to run: lctl ping 
 
 ## Lustre Client Performance
 This pulls out client performance counters from obdfilter in /proc.  This allows us to track each client's performance on a per MDT/OST level for fine grained workload analysis. This script sources the path to a map file that has a mapping of IP addresses to hostnames (one mapping per line, space separated).  This allows metrics to be tagged with FQDNs for ease of analysis.  The generation of that map file is left up to the site as different environments will have different needs and constraints.  Run this on all MDS and OSS machines.  

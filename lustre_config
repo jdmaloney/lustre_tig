@@ -5,6 +5,6 @@ readonly map_file="" ## Path to file that maps IPs to hostnames for clients
 readonly paths="" ## Paths to check the ls time on to verify FS functionality/perf
 readonly files="" ## Files to stat to verify FS functionality/mount/perf
 readonly mgs="" ## MGS host to check with lctl ping eg. 172.30.32.2@o2ib
-readonly test_host="" ## Expected hostname returned by lookup of ip address
+readonly test_hostname="" ## Expected hostname returned by lookup of ip address
 readonly test_ip="" ## IP Address of host to test that lookups are working
 readonly admin_dir="" ## Directory where quota files dumped to

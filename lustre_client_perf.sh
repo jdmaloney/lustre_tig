@@ -10,7 +10,7 @@ if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cu
 		:
 	else
 		rm -rf ${map_file}
-		ips=($(ls /proc/fs/lustre/obdfilter/taiga-*/exports/ | grep "@" | grep -v "@lo" | sort -u | cut -d'@' -f 1 | xargs))
+		ips=($(ls /proc/fs/lustre/obdfilter/${filesystem}-*/exports/ | grep "@" | grep -v "@lo" | sort -u | cut -d'@' -f 1 | xargs))
 		for i in ${ips[@]}
 		do
 			hostname=$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev)

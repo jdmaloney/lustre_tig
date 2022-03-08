@@ -7,12 +7,8 @@ if [ -n "${mdt_mount}" ]; then
 ## Get Mount Counts
 source /etc/telegraf/lustre/lustre_config
 
-for f in ${filesystems[@]}
-do
-	mount_count=$(lshowmount -e | wc -l)
-	echo "lustre_mount_count,file_system=${f} count=${mount_count}"
-done
-
+mount_count=$(lshowmount -e | wc -l)
+echo "lustre_mount_count,file_system=${filesystem} count=${mount_count}"
 
 else
 	:

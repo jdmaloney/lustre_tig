@@ -32,7 +32,7 @@ do
 		if [ "${state}" == "Started" ]; then
 			state_health=0
 		else
-			staet_health=1
+			state_health=1
 		fi
 		echo "lustre_ha_health,node=${n},service=${service} state=\"${state}\",state_health=${state_health}"
 	done <<< "$(cat ${tfile} | sed -n '/^Node '${n}'/,$p' | sed -n '/^Node/{:1;p;n;/^Node/{p;q};b1};p' | grep -v "Node " | grep ":" | awk '{print $1" "$3}')"

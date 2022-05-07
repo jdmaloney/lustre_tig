@@ -3,13 +3,16 @@
 source /etc/telegraf/lustre/lustre_config
 
 ## Lustre Ping
-lping=$(sudo /usr/sbin/lctl ping ${mgs} | head -n 1)
-
-if [ -z $(echo ${lping} | grep -i error) ]; then
-	echo "lctl_ping,target=${mgs} ping_error=0"
-else
-	echo "lctl_ping,target=${mgs} ping_error=1"
-fi
+for m in ${mgs[@]}
+do
+	lping=$(sudo /usr/sbin/lctl ping ${m} | head -n 1)
+	
+	if [ -z $(echo ${lping} | grep -i error) ]; then
+		echo "lctl_ping,target=${m} ping_error=0"
+	else
+		echo "lctl_ping,target=${m} ping_error=1"
+	fi
+done
 
 ## FS Responsive Test ##
 tfile1=$(mktemp /tmp/ls.XXXXXX)

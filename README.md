@@ -24,6 +24,8 @@ This check is run on all Lustre clients to verify that they have mount and can p
 ## Lustre Client Performance
 This pulls out client performance counters from obdfilter in /proc.  This allows us to track each client's performance on a per MDT/OST level for fine grained workload analysis. This script sources the path to a map file that has a mapping of IP addresses to hostnames (one mapping per line, space separated).  This allows metrics to be tagged with FQDNs for ease of analysis.  The generation of that map file is left up to the site as different environments will have different needs and constraints.  Run this on all MDS and OSS machines.  
 
+NOTE: The community lustre2 plugin for telegraf now can extract data from these counters (as of v.1.23) however it won't translate the IP addresses to hostnames which this check does.  If that translation is not needed; feel free to use the community check.
+
 ## LNET Stats
 Parses stats on LNET routers and sends them to InfluxDB; helpful for tracking performance and errors on LNET router nodes
 

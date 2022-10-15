@@ -29,4 +29,11 @@ NOTE: The community lustre2 plugin for telegraf now can extract data from these 
 ## LNET Stats
 Parses stats on LNET routers and sends them to InfluxDB; helpful for tracking performance and errors on LNET router nodes
 
-## Lustre Quota Parse
+## Lustre Quota Parse & Lustre Quota ID Dump
+Parses quota output for user, group, and project quotas for storing in InfluxDB.
+
+#### Quota ID Dump
+Only needs to run on MDS machines, but can be run on all Lustre servers; script detects if host has no MDTs and exits.  The check gets all the uid/gid/prj_id numbers that are stored on the MDT(s) attached to the host and drops those IDs into a file in the admin directory.  These come into play for the Lustre Quota Parse script.  This check doesn't acctually ship any data to the database.
+
+#### Quota Parse
+We run this from our Lustre Admin node, but it can be run on any client that has access to the admin directory.  The check takes the lists of uids/gids/prj_ids that were dumped by the Quota ID Dump check and generates a unique (and deduplicated) list of all the IDs.  It then iterates over `lfs quota` commands to gather quota information for that uid/gid/prj_id.  This information is then shipped to the database.  We generally run this on a 15 minute interval but adjust to what is tolerable in your environment.   

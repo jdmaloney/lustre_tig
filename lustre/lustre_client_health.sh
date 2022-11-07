@@ -64,3 +64,24 @@ do
 	fi
 
 done
+
+## MDT/OST Activity
+while IFS= read -r line; do
+	IFS=" " read -r target active_string <<< "${line}"
+	if [ "${active_string}" == "ACTIVE" ]; then
+		active=1
+	else
+		active=0
+	fi
+	echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=${active_string}"
+done < <(lfs mdts | awk '{print $2" "$3}' | sort -u | sed '/^[[:space:]]*$/d')
+
+while IFS= read -r line; do
+        IFS=" " read -r target active_string <<< "${line}"
+        if [ "${active_string}" == "ACTIVE" ]; then
+                active=1
+        else
+                active=0
+        fi
+        echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=${active_string}"
+done < <(lfs osts | awk '{print $2" "$3}' | sort -u | sed '/^[[:space:]]*$/d')

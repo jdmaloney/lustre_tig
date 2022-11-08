@@ -73,7 +73,7 @@ while IFS= read -r line; do
 	else
 		active=0
 	fi
-	echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=${active_string}"
+	echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=\"${active_string}\""
 done < <(lfs mdts | awk '{print $2" "$3}' | sort -u | sed '/^[[:space:]]*$/d')
 
 while IFS= read -r line; do
@@ -83,5 +83,5 @@ while IFS= read -r line; do
         else
                 active=0
         fi
-        echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=${active_string}"
+        echo "lfs_mdt_ost_check,target=${target} active=${active},active_string=\"${active_string}\""
 done < <(lfs osts | awk '{print $2" "$3}' | sort -u | sed '/^[[:space:]]*$/d')

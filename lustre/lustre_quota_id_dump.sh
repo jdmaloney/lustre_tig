@@ -7,7 +7,7 @@ if [ -z "$(cat /proc/mounts | grep "MDT")" ]; then
 	## No MDTs, just exit
 	exit 0
 else
-	## I have MDT(s), dumping its idse
+	## I have MDT(s), dumping their IDse
 	MDTs=($(ls /proc/fs/lustre/osd-ldiskfs/ | grep MDT | xargs))
         for m in ${MDTs[@]}
         do

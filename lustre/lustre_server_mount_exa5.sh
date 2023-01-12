@@ -2,7 +2,7 @@
 
 tfile=$(mktemp /tmp/esmount.XXXXXX)
 
-/opt/ddn/es/tools/es_mount --status | grep "/dev/" | awk '{print $2" "$6}' > "${tfile}"
+sudo /opt/ddn/es/tools/es_mount --status | grep "/dev/" | awk '{print $2" "$6}' > "${tfile}"
 
 while IFS= read -r line; do
         IFS=" " read -r name mount_state <<< "$(echo ${line})"

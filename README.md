@@ -26,6 +26,9 @@ This pulls out client performance counters from obdfilter in /proc.  This allows
 
 NOTE: The community lustre2 plugin for telegraf now can extract data from these counters (as of v.1.23) however it won't translate the IP addresses to hostnames which this check does.  If that translation is not needed; feel free to use the community check.
 
+## Lustre Changelog Check
+This pulls in stats about the state of changelog consumption for the cl1 consumer on each MDT on a system.  It gathers how many records are in the "backlog" to be ingested by the consumer, how large the change log is on each MDT, and the current indexes of both the MDT and the consumer.  This is helpful to make sure Robinhood (or any consumer) is keeping up with change logs and not ballooning the space change logs take up on the MDT.  
+
 ## LNET Stats
 Parses stats on LNET routers and sends them to InfluxDB; helpful for tracking performance and errors on LNET router nodes
 

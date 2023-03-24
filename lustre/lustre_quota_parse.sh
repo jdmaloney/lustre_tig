@@ -20,9 +20,21 @@ do
 	if [ "${kb_grace}" == "none" ] || [ "${kb_grace}" == "0" ] || [ "${kb_grace}" == "-" ]; then
 		kb_grace=0
         else
-		days=$(echo ${kb_grace} | cut -d'd' -f 1)
-		hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-		minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+		if [[ "${kb_grace}" == *"d"* ]]; then
+                        days=$(echo ${kb_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${kb_grace}" == *"h"* ]]; then
+                        hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${kb_grace}" == *"m"* ]]; then
+                        minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
 		seconds=$(echo ${kb_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
 		time=$((days*86400 + hours*3600 + minutes*60 * seconds))
 		kb_grace=${time}
@@ -30,10 +42,22 @@ do
 	if [ "${file_grace}" == "none" ] || [ "${file_grace}" == "0" ] || [ "${file_grace}" == "-" ]; then
                 file_grace=0
         else
-                days=$(echo ${file_grace} | cut -d'd' -f 1)
-                hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-                minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
-                seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        days=$(echo ${file_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${file_grace}" == *"h"* ]]; then
+                        hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
+		seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
                 time=$((days*86400 + hours*3600 + minutes*60 * seconds))
 		file_grace=${time}
         fi
@@ -53,20 +77,44 @@ do
 	if [ "${kb_grace}" == "none" ] || [ "${kb_grace}" == "0" ] || [ "${kb_grace}" == "-" ]; then
 		kb_grace=0
         else
-                days=$(echo ${kb_grace} | cut -d'd' -f 1)
-                hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-                minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
-                seconds=$(echo ${kb_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
+                if [[ "${kb_grace}" == *"d"* ]]; then
+                        days=$(echo ${kb_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${kb_grace}" == *"h"* ]]; then
+                        hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${kb_grace}" == *"m"* ]]; then
+                        minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
+		seconds=$(echo ${kb_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
                 time=$((days*86400 + hours*3600 + minutes*60 * seconds))
                 kb_grace=${time}
         fi
 	if [ "${file_grace}" == "none" ] || [ "${file_grace}" == "0" ] || [ "${file_grace}" == "-" ]; then
 		file_grace=0
         else
-		days=$(echo ${file_grace} | cut -d'd' -f 1)
-                hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-                minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
-                seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        days=$(echo ${file_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${file_grace}" == *"h"* ]]; then
+                        hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
+		seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
                 time=$((days*86400 + hours*3600 + minutes*60 * seconds))
                 file_grace=${time}
         fi
@@ -83,20 +131,44 @@ do
 	if [ "${kb_grace}" == "none" ] || [ "${kb_grace}" == "0" ] || [ "${kb_grace}" == "-" ]; then
                 kb_grace=0
         else
-		days=$(echo ${kb_grace} | cut -d'd' -f 1)
-                hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-                minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
-                seconds=$(echo ${kb_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
+                if [[ "${kb_grace}" == *"d"* ]]; then
+                        days=$(echo ${kb_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${kb_grace}" == *"h"* ]]; then
+                        hours=$(echo ${kb_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${kb_grace}" == *"m"* ]]; then
+                        minutes=$(echo ${kb_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
+		seconds=$(echo ${kb_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
                 time=$((days*86400 + hours*3600 + minutes*60 * seconds))
                 kb_grace=${time}
         fi
 	if [ "${file_grace}" == "none" ] || [ "${file_grace}" == "0" ] || [ "${file_grace}" == "-" ]; then
 		file_grace=0
         else
-		days=$(echo ${file_grace} | cut -d'd' -f 1)
-                hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
-                minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
-                seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        days=$(echo ${file_grace} | cut -d'd' -f 1)
+                else
+                        days=0
+                fi
+                if [[ "${file_grace}" == *"h"* ]]; then
+                        hours=$(echo ${file_grace} | cut -d'd' -f 2 | cut -d'h' -f 1)
+                else
+                        hours=0
+                fi
+                if [[ "${file_grace}" == *"d"* ]]; then
+                        minutes=$(echo ${file_grace} | cut -d'h' -f 2 | cut -d'm' -f 1)
+                else
+                        minutes=0
+                fi
+		seconds=$(echo ${file_grace} | cut -d'm' -f 2 | cut -d's' -f 1)
                 time=$((days*86400 + hours*3600 + minutes*60 * seconds))
                 file_grace=${time}
         fi

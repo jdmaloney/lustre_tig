@@ -8,3 +8,6 @@ readonly mgs="" ## List of MGS host to check with lctl ping eg. "172.30.32.2@o2i
 readonly test_hostname="" ## Expected hostname returned by lookup of ip address
 readonly test_ip="" ## IP Address of host to test that lookups are working
 readonly admin_dir="" ## Directory where quota files dumped to
+readonly robinhood_user=""  ## Username for Robinhood DB
+readonly robinhood_password="" ## Password to Robinhood DB
+readonly robinhood_db="" ## Robinhood Database name

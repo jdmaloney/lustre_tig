@@ -36,6 +36,7 @@ do
 			fs=$(echo "${d}" | cut -d'-' -f 1)
 			disk_type=$(echo "${d}" | cut -d'-' -f 2 | cut -c 1-3 )
 			stats_line=$(grep -v snapshot /proc/fs/lustre/obdfilter/${d}/exports/${c}/stats | awk '{print $1"="$7}' | xargs | sed 's/\ /,/g' | sed 's/=$/=0/' | sed 's/=,/=0/g')
+			stats_line="${stats_line},$(grep -v snapshot /proc/fs/lustre/obdfilter/${d}/exports/${c}/ldlm_stats | awk '{print $1"="$2}' | xargs | sed 's/\ /,/g' | sed 's/=$/=0/' | sed 's/=,/=0/g')"
 			if [ -n "${stats_line}" ]; then
 				echo lustre_client_perf,fs=${fs},disk_type=${disk_type},disk=${d},client=${client_name} ${stats_line}
 			fi

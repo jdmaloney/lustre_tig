@@ -5,8 +5,8 @@ tfile2=$(mktemp /tmp/esmount2.XXXXXX)
 
 source /etc/telegraf/lustre/lustre_config
 
-sudo /usr/bin/es_mount --status --all | grep "/dev/" | cut -d'|' -f 2,4 | sed 's/t\ m/t_m/' | sed 's/\ |\ /\ /' > "${tfile}"
-sudo /usr/bin/es_mount --status | grep "/dev/" | cut -d'|' -f 2,4 | sed 's/t\ m/t_m/' | sed 's/\ |\ /\ /' | grep -v mgs > "${tfile2}"
+sudo /usr/bin/es_mount --status --all | grep "/dev/" | cut -d'|' -f 1,3 | sed 's/t\ m/t_m/' | sed 's/\ |\ /\ /' > "${tfile}"
+sudo /usr/bin/es_mount --status | grep "/dev/" | cut -d'|' -f 1,3 | sed 's/t\ m/t_m/' | sed 's/\ |\ /\ /' | grep -v mgs > "${tfile2}"
 
 while IFS= read -r line; do
         IFS=" " read -r name mount_state <<< "$(echo ${line})"

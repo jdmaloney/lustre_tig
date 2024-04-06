@@ -15,6 +15,9 @@ Tracks the number of clients with mount of the file system.  For most accurate r
 ## Lustre Server Mount
 Checks the health of MGT/MDT/OST mounts on the MGS/MDS/OSS machines respectively so we get alerted if mount is lost for one or more of those devices on one or more servers.
 
+## EMF Perf Ping
+Leverages the built in ExaScaler ping verification tool to ensure that all interfaces on all stacks are healthy and not in a failed state.  
+
 ## Lustre lfs disk check
 Checks the fill of all the OSTs and MDTs to ensure their usage is remaining balanced and within an acceptable level of fill.  Also it checks to make sure all OSTs and MDTs are in an "ACTIVE" state.  This needs to be run from a client that mounts the file system.  We run this check from our storage service nodes. 
 

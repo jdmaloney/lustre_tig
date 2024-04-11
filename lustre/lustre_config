@@ -7,6 +7,7 @@ readonly files="" ## Files to stat to verify FS functionality/mount/perf
 readonly mgs="" ## List of MGS host to check with lctl ping eg. "172.30.32.2@o2ib 172.19.24.8@tcp"
 readonly test_hostname="" ## Expected hostname returned by lookup of ip address
 readonly test_ip="" ## IP Address of host to test that lookups are working
+readonly expected_q_state="" ## Expected state of quota enforcement, eg "ugp" or "ug"
 readonly admin_dir="" ## Directory where quota files dumped to
 readonly robinhood_user=""  ## Username for Robinhood DB
 readonly robinhood_password="" ## Password to Robinhood DB

@@ -89,11 +89,11 @@ done < <(lfs osts | awk '{print $2" "$3}' | sort -u | sed '/^[[:space:]]*$/d')
 tfile=$(mktemp /tmp/lnet.XXXXXXX)
 counter_types=(statistics sent_stats received_stats dropped_stats health_stats)
 
-nets=($(/usr/sbin/lnetctl net show | grep "net\ type:" | grep -v ":\ lo" | awk '{print $NF}' | xargs))
+nets=($(sudo /usr/sbin/lnetctl net show | grep "net\ type:" | grep -v ":\ lo" | awk '{print $NF}' | xargs))
 
 for n in ${nets[@]}
 do
-	/usr/sbin/lnetctl net show --net ${n} -v 3 | sed 's/health\ stats:/health_stats:/' > "${tfile}"
+	sudo /usr/sbin/lnetctl net show --net ${n} -v 3 | sed 's/health\ stats:/health_stats:/' > "${tfile}"
 	interfaces=($(grep -A1 interfaces "${tfile}" | grep "0:" | awk '{print $NF}' | xargs))
 	for i in ${interfaces[@]}
 	do

@@ -93,7 +93,7 @@ nets=($(sudo /usr/sbin/lnetctl net show | grep "net\ type:" | grep -v ":\ lo" | 
 
 for n in ${nets[@]}
 do
-	sudo /usr/sbin/lnetctl net show --net ${n} -v 3 | sed 's/health\ stats:/health_stats:/' > "${tfile}"
+	sudo /usr/sbin/lnetctl net show --net ${n} -v 3 | sed 's/health\ /health_/' | sed 's/no\ route/no_route/' > "${tfile}"
 	interfaces=($(grep -A1 interfaces "${tfile}" | grep "0:" | awk '{print $NF}' | xargs))
 	for i in ${interfaces[@]}
 	do
@@ -161,9 +161,19 @@ do
 			real_pool=$(echo ${l} | cut -d'.' -f 2)
 			read_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $2}' "${tfile}".size | paste -sd+ | bc)
 			write_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $3}' "${tfile}".size  | paste -sd+ | bc)
-	                read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
-	                write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
-	                echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=pages_per_rpc,pages=${p} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
+   			if [ -n "${read_rpcs[@]}" ]; then
+                                read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
+                        else
+                                read_rpcs=0
+                                read_rpcs_per=0
+                        fi
+                        if [ -n "${write_rpcs[@]}" ]; then
+                                write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
+                        else
+                                write_rpcs=0
+                                write_rpcs_per=0
+                        fi
+			echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=pages_per_rpc,pages=${p} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
 		done
 	done
 

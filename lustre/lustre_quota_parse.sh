@@ -22,7 +22,7 @@ parse_user_quotas () {
 		fi
 	done
 	awk '{a[$1]+=$2;b[$1]+=$3}END{for(i in a)print i, a[i], b[i]|"sort"}' ${admin_dir}/flimit_user*.txt > ${tfile3}
-	blimit_count=$(wc -l ${tfile2} | awk '{print $1}')
+	blimit_count=$(cat ${tfile2}.* | wc -l | awk '{print $1}')
 	flimit_count=$(wc -l ${tfile3} | awk '{print $1}')
 
 	for u in ${uids[@]}
@@ -45,12 +45,12 @@ parse_user_quotas () {
 	        fi
 		for o in ${pools[@]}
 		do
-			read -r kb_used files <<< $(awk -v u=${u} '$1 == u {print $2" "$3}' ${tfile1}.${o})
+			read -r kb_used inodes <<< $(awk -v u=${u} '$1 == u {print $2" "$3}' ${tfile1}.${o})
 			if [ -z "${kb_used}" ]; then
 				kb_used=0
 			fi
-			if [ -z "${files}" ]; then
-				files=0
+			if [ -z "${inodes}" ]; then
+				inodes=0
 			fi
 			if [ ${blimit_count} -gt 2 ]; then
 		                read -r kb_limit kb_quota <<< $(awk -v u=${u} '$1 == u {print $2" "$3}' ${tfile2}.${o})
@@ -64,19 +64,19 @@ parse_user_quotas () {
 		                kb_limit=0
 		                kb_quota=0
 		        fi
-			echo "lustre_quota,fs=${fs},pool=${o},user_id=${u},user=${user_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${files},file_quota=${file_quota},file_limit=${file_limit}"
+			echo "lustre_quota,fs=${fs},pool=${o},user_id=${u},user=${user_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${inodes},file_quota=${file_quota},file_limit=${file_limit}"
 		done
 		mdts=($(ls ${admin_dir}/user*MDT*.txt | rev | cut -d'_' -f 2 | rev))
 		for m in ${mdts[@]}
 		do
-			read -r kb_used files <<< $(awk -v u=${u} '$1 == u {print $2" "$3}' ${admin_dir}/user_${m}_all.txt)
+			read -r kb_used inodes <<< $(awk -v u=${u} '$1 == u {print $2" "$3}' ${admin_dir}/user_${m}_all.txt)
         	        if [ -z "${kb_used}" ]; then
         	                kb_used=0
         	        fi
-        	        if [ -z "${files}" ]; then
-        	                files=0
+        	        if [ -z "${inodes}" ]; then
+        	                inodes=0
         	        fi
-			echo "lustre_quota,fs=${fs},pool=mdt,user_id=${u},user=${user_name},mdt=${m} kb_used=${kb_used},files=${files}"
+			echo "lustre_quota,fs=${fs},pool=mdt,user_id=${u},user=${user_name},mdt=${m} kb_used=${kb_used},files=${inodes}"
 		done
 	done
         rm -f /tmp/qparse1*
@@ -103,7 +103,7 @@ parse_group_quotas () {
 		fi
 	done
 	awk '{a[$1]+=$2;b[$1]+=$3}END{for(i in a)print i, a[i], b[i]|"sort"}' ${admin_dir}/flimit_group*.txt > ${tfile6}
-	blimit_count=$(wc -l ${tfile5} | awk '{print $1}')
+	blimit_count=$(cat ${tfile5}.* | wc -l | awk '{print $1}')
 	flimit_count=$(wc -l ${tfile6} | awk '{print $1}')
 
 	for g in ${gids[@]}
@@ -126,12 +126,12 @@ parse_group_quotas () {
 		fi
 		for o in ${pools[@]}
 		do
-		        read -r kb_used files <<< $(awk -v g=${g} '$1 == g {print $2" "$3}' ${tfile4}.${o})
+		        read -r kb_used inodes <<< $(awk -v g=${g} '$1 == g {print $2" "$3}' ${tfile4}.${o})
 	                if [ -z "${kb_used}" ]; then
 	                        kb_used=0
 	                fi
-	                if [ -z "${files}" ]; then
-	                        files=0
+	                if [ -z "${inodes}" ]; then
+	                        inodes=0
 	                fi
 			if [ ${blimit_count} -gt 2 ]; then
 				read -r kb_limit kb_quota <<< $(awk -v g=${g} '$1 == g {print $2" "$3}' ${tfile5}.${o})
@@ -145,19 +145,19 @@ parse_group_quotas () {
 				kb_limit=0
 				kb_quota=0
 			fi
-		        echo "lustre_quota,fs=${fs},pool=${o},group_id=${g},group=${group_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${files},file_quota=${file_quota},file_limit=${file_limit}"
+		        echo "lustre_quota,fs=${fs},pool=${o},group_id=${g},group=${group_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${inodes},file_quota=${file_quota},file_limit=${file_limit}"
 		done
 		mdts=($(ls ${admin_dir}/group*MDT*.txt | rev | cut -d'_' -f 2 | rev))
 	        for m in ${mdts[@]}
 	        do
-	                read -r kb_used files <<< $(awk -v g=${g} '$1 == g {print $2" "$3}' ${admin_dir}/group_${m}_all.txt)
+	                read -r kb_used inodes <<< $(awk -v g=${g} '$1 == g {print $2" "$3}' ${admin_dir}/group_${m}_all.txt)
 	  		if [ -z "${kb_used}" ]; then
 	                        kb_used=0
 	                fi
-	                if [ -z "${files}" ]; then
-	                        files=0
+	                if [ -z "${inodes}" ]; then
+	                        inodes=0
 	                fi
-			echo "lustre_quota,fs=${fs},pool=mdt,group_id=${g},group=${group_name},mdt=${m} kb_used=${kb_used},files=${files}"
+			echo "lustre_quota,fs=${fs},pool=mdt,group_id=${g},group=${group_name},mdt=${m} kb_used=${kb_used},files=${inodes}"
 	        done
 	done
 	rm -f /tmp/qparse4*
@@ -183,7 +183,7 @@ parse_project_quotas () {
 		fi
 	done
 	awk '{a[$1]+=$2;b[$1]+=$3}END{for(i in a)print i, a[i], b[i]|"sort"}' ${admin_dir}/flimit_project*.txt > ${tfile9}
-	blimit_count=$(wc -l ${tfile8} | awk '{print $1}')
+	blimit_count=$(cat ${tfile8}.* | wc -l | awk '{print $1}')
 	flimit_count=$(wc -l ${tfile9} | awk '{print $1}')
 
 	for p in ${pids[@]}
@@ -205,12 +205,12 @@ parse_project_quotas () {
 			file_quota=0
 		fi
 		for o in ${pools[@]}; do
-		        read -r kb_used files <<< $(awk -v p=${p} '$1 == p {print $2" "$3}' ${tfile7}.${o})
+		        read -r kb_used inodes <<< $(awk -v p=${p} '$1 == p {print $2" "$3}' ${tfile7}.${o})
 	                if [ -z "${kb_used}" ]; then
 	                        kb_used=0
 	                fi
-	                if [ -z "${files}" ]; then
-	                        files=0
+	                if [ -z "${inodes}" ]; then
+	                        inodes=0
 	                fi
 			if [ ${blimit_count} -gt 2 ]; then
 		                read -r kb_limit kb_quota <<< $(awk -v p=${p} '$1 == p {print $2" "$3}' ${tfile8}.${o})
@@ -224,19 +224,19 @@ parse_project_quotas () {
 		                kb_limit=0
 		                kb_quota=0
 			        fi
-			echo "lustre_quota,fs=${fs},pool=${o},project_id=${p},project_name=${project_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${files},file_quota=${file_quota},file_limit=${file_limit}"
+			echo "lustre_quota,fs=${fs},pool=${o},project_id=${p},project_name=${project_name} kb_used=${kb_used},kb_quota=${kb_quota},kb_limit=${kb_limit},files=${inodes},file_quota=${file_quota},file_limit=${file_limit}"
 		done
 		mdts=($(ls ${admin_dir}/project*MDT*.txt | rev | cut -d'_' -f 2 | rev))
 	        for m in ${mdts[@]}
 	        do
-	                read -r kb_used files <<< $(awk -v p=${p} '$1 == p {print $2" "$3}' ${admin_dir}/project_${m}_all.txt)
+	                read -r kb_used inodes <<< $(awk -v p=${p} '$1 == p {print $2" "$3}' ${admin_dir}/project_${m}_all.txt)
 			if [ -z "${kb_used}" ]; then
 				kb_used=0
 			fi
-			if [ -z "${files}" ]; then
-				files=0
+			if [ -z "${inodes}" ]; then
+				inodes=0
 			fi
-	                echo "lustre_quota,fs=${fs},pool=mdt,project_id=${p},project_name=${project_name},mdt=${m} kb_used=${kb_used},files=${files}"
+	                echo "lustre_quota,fs=${fs},pool=mdt,project_id=${p},project_name=${project_name},mdt=${m} kb_used=${kb_used},files=${inodes}"
 	        done
 	done
 	rm -f /tmp/qparse7*

@@ -1,5 +1,5 @@
 ##Lustre Telegraf Config
-readonly fs=""	## Mount path of File System for quota
+fs=""	## Mount path of File System for quota
 readonly filesystem=""	## Name of filesystem in cluster
 readonly map_file="" ## Path to file that maps IPs to hostnames for clients
 readonly paths="" ## Paths to check the ls time on to verify FS functionality/perf

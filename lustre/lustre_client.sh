@@ -6,7 +6,7 @@ source /etc/telegraf/lustre/lustre_config
 for m in ${mgs[@]}
 do
 	lping=$(sudo /usr/sbin/lctl ping ${m} | head -n 1)
-	
+
 	if [ -z $(echo ${lping} | grep -i error) ]; then
 		echo "lctl_ping,target=${m} ping_error=0"
 	else
@@ -125,17 +125,26 @@ file_systems=$(ls /proc/fs/lustre/osc/ | cut -d'-' -f 1 | sort -u | xargs)
 for f in ${file_systems[@]}
 do
 	pools=($(/usr/sbin/lctl pool_list ${f} | tail -n +2))
-	for p in ${pools[@]}
-	do
-		lctl pool_list ${p} | tail -n +2 | sed "s/^/${p}:/" | sed 's/_UUID//' >> "${tfile}".pools
-	done
+	if (( ${#pools[@]} )); then
+		for p in ${pools[@]}
+		do
+			lctl pool_list ${p} | tail -n +2 | sed "s/^/${p}:/" | sed 's/_UUID//' >> "${tfile}".pools
+		done
+		are_pools=1
+	else
+		are_pools=0
+	fi
 	rrpc_inflight=0
 	wrpc_inflight=0
 	targets=($(ls /proc/fs/lustre/osc/ | grep "${f}-"))
 	for t in ${targets[@]}
 	do
 		cleant=$(echo ${t} | cut -d'-' -f 1-2)
-		pool=$(grep "${cleant}" "${tfile}".pools | cut -d':' -f 1 | cut -d'.' -f 2)
+		if [ ${are_pools} -eq 1 ]; then
+			pool=$(grep "${cleant}" "${tfile}".pools | cut -d':' -f 1 | cut -d'.' -f 2)
+		else
+			pool=all
+		fi
 		cat /proc/fs/lustre/osc/${t}/rpc_stats > "${tfile}"
 		read -r n_rrpc_inflight n_wrpc_inflight <<< $(grep "RPCs in flight" ${tfile} | awk '{print $NF}' | xargs)
 		rrpc_inflight=$((n_rrpc_inflight+rrpc_inflight))
@@ -154,27 +163,46 @@ do
         pages=($(awk '{print $1}' "${tfile}".size | sort -u | xargs))
         all_rpcs_read=$(awk '{print $2}' "${tfile}".size | paste -sd+ | bc)
         all_rpcs_write=$(awk '{print $3}' "${tfile}".size | paste -sd+ | bc)
-        for p in ${pages[@]}
+	for p in ${pages[@]}
         do
-		for l in ${pools[@]}
-		do
-			real_pool=$(echo ${l} | cut -d'.' -f 2)
-			read_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $2}' "${tfile}".size | paste -sd+ | bc)
-			write_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $3}' "${tfile}".size  | paste -sd+ | bc)
-   			if [ -n "${read_rpcs[@]}" ]; then
-                                read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
+		if [ ${are_pools} -eq 1 ]; then
+			for l in ${pools[@]}
+			do
+				real_pool=$(echo ${l} | cut -d'.' -f 2)
+				read_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $2}' "${tfile}".size | paste -sd+ | bc)
+				write_rpcs=$(awk -v l=${real_pool} -v p=${p} '$4 == l  && $1 == p {print $3}' "${tfile}".size  | paste -sd+ | bc)
+	                        if [ -n "${read_rpcs[@]}" ] && [ ${all_rpcs_read} -ne 0 ]; then
+	                                read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
+	                        else
+	                                read_rpcs=0
+	                                read_rpcs_per=0
+	                        fi
+	                        if [ -n "${write_rpcs[@]}" ] && [ ${all_rpcs_write} -ne 0 ]; then
+	                                write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
+	                        else
+	                                write_rpcs=0
+	                                write_rpcs_per=0
+	                        fi
+		                echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=pages_per_rpc,pages=${p} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
+			done
+		else
+			real_pool=all
+			read_rpcs=$(awk '{print $2}' "${tfile}".size | paste -sd+ | bc)
+                        write_rpcs=$(awk '{print $3}' "${tfile}".size  | paste -sd+ | bc)
+			if [ -n "${read_rpcs[@]}" ] && [ ${all_rpcs_read} -ne 0 ]; then
+                        	read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
                         else
-                                read_rpcs=0
+                        	read_rpcs=0
                                 read_rpcs_per=0
                         fi
-                        if [ -n "${write_rpcs[@]}" ]; then
-                                write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
+                        if [ -n "${write_rpcs[@]}" ] && [ ${all_rpcs_write} -ne 0 ]; then
+                        	write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
                         else
-                                write_rpcs=0
+                        	write_rpcs=0
                                 write_rpcs_per=0
                         fi
-			echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=pages_per_rpc,pages=${p} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
-		done
+                        echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=pages_per_rpc,pages=${p} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
+		fi
 	done
 
         ## Tally Inflight Info
@@ -183,25 +211,44 @@ do
         all_rpcs_write=$(awk '{print $3}' "${tfile}".inflight | paste -sd+ | bc)
         for r in ${rpcs[@]}
         do
-		for l in ${pools[@]}
-		do
-			real_pool=$(echo ${l} | cut -d'.' -f 2)
-	                read_rpcs=$(awk -v l=${real_pool} -v r=${r} '$4 == l  && $1 == r {print $2}' "${tfile}".inflight | paste -sd+ | bc)
-	                write_rpcs=$(awk -v l=${real_pool} -v r=${r} '$4 == l  && $1 == r {print $3}' "${tfile}".inflight | paste -sd+ | bc)
-			if [ -n "${read_rpcs}" ]; then
-				read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
-			else
-				read_rpcs=0
-				read_rpcs_per=0
-			fi
-			if [ -n "${write_rpcs}" ]; then
-				write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
-			else
-				write_rpcs=0
-				write_rpcs_per=0
-			fi
-			echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=rpcs_in_flight,rpcs=${r} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
-		done
+		if [ ${are_pools} -eq 1 ]; then
+			for l in ${pools[@]}
+			do
+				real_pool=$(echo ${l} | cut -d'.' -f 2)
+		                read_rpcs=$(awk -v l=${real_pool} -v r=${r} '$4 == l  && $1 == r {print $2}' "${tfile}".inflight | paste -sd+ | bc)
+		                write_rpcs=$(awk -v l=${real_pool} -v r=${r} '$4 == l  && $1 == r {print $3}' "${tfile}".inflight | paste -sd+ | bc)
+				if [ -n "${read_rpcs}" ] && [ ${all_rpcs_read} -ne 0 ]; then
+					read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
+				else
+					read_rpcs=0
+					read_rpcs_per=0
+				fi
+				if [ -n "${write_rpcs}" ] && [ ${all_rpcs_write} -ne 0 ]; then
+					write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
+				else
+					write_rpcs=0
+					write_rpcs_per=0
+				fi
+				echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=rpcs_in_flight,rpcs=${r} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
+			done
+		else
+			real_pool=all
+                        read_rpcs=$(awk -v r=${r} '$1 == r {print $2}' "${tfile}".inflight | paste -sd+ | bc)
+                        write_rpcs=$(awk -v r=${r} '$1 == r {print $3}' "${tfile}".inflight | paste -sd+ | bc)
+                        if [ -n "${read_rpcs}" ] && [ ${all_rpcs_read} -ne 0 ]; then
+                        	read_rpcs_per=$(echo "scale=7; ${read_rpcs}/${all_rpcs_read}*100" | bc -l)
+                        else
+                        	read_rpcs=0
+                                read_rpcs_per=0
+                        fi
+                        if [ -n "${write_rpcs}" ] && [ ${all_rpcs_write} -ne 0 ]; then
+                        	write_rpcs_per=$(echo "scale=7; ${write_rpcs}/${all_rpcs_write}*100" | bc -l)
+                        else
+                        	write_rpcs=0
+                                write_rpcs_per=0
+                        fi
+                        echo "lustre_client_rpc_stats,fs=${f},pool=${real_pool},type=rpcs_in_flight,rpcs=${r} read_rpcs=${read_rpcs},read_rpcs_percent=${read_rpcs_per},write_rpcs=${write_rpcs},write_rpcs_percent=${write_rpcs_per}"
+		fi
 	done
 
 done

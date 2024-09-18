@@ -4,7 +4,7 @@ source /etc/telegraf/lustre/lustre_config
 
 ## If the map file doesn't exist/is empty or at 15 past the hour update the map file of clients
 if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cut -d' ' -f 1) -eq 0 ]; then	
-	test_host=$(nslookup "${test_ip}" | cut -d' ' -f 3 | rev | cut -c 2- | rev)
+	test_host=$(nslookup "${test_ip}" | cut -d' ' -f 3 | rev | cut -c 2- | rev | head -n 1)
 	if [ "${test_host}" != "${test_hostname}" ]; then
 		# DNS lookup failed; aborting map update this hour
 		:
@@ -13,7 +13,7 @@ if [ $(date +%M) == "15" ] || [ ! -f ${map_file} ] || [ $(wc -l ${map_file} | cu
 		ips=($(ls /proc/fs/lustre/obdfilter/${filesystem}-*/exports/ | grep "@" | grep -v "@lo" | sort -u | cut -d'@' -f 1 | xargs))
 		for i in ${ips[@]}
 		do
-			hostname=$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev)
+			hostname=$(nslookup ${i} | cut -d' ' -f 3 | rev | cut -c 2- | rev | head -n 1)
 			if [ ${hostname} != "can'" ]; then
 				echo "${i}" "${hostname}" >> ${map_file}
 			fi

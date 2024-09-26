@@ -99,9 +99,9 @@ do
 	do
 		status=$(grep -B2 ${i} ${tfile} | grep status | awk '{print $NF}')
 		if [ "${status}" == "up" ]; then
-			echo "lnet_detail_stats,fs=${fs},net=${n},interface=${i},counter_type=status state=\"${status}\",is_up=1"
+			echo "lnet_detail_stats,net=${n},interface=${i},counter_type=status state=\"${status}\",is_up=1"
 		else
-			echo "lnet_detail_stats,fs=${fs},net=${n},interface=${i},counter_type=status state=\"${status}\",is_up=0"
+			echo "lnet_detail_stats,net=${n},interface=${i},counter_type=status state=\"${status}\",is_up=0"
 		fi
 		for c in ${counter_types[@]}
 		do
@@ -112,7 +112,7 @@ do
 			else
 				stats_line=$(grep -A 31 "0: ${i}" "${tfile}" | grep -A 5 "${c}" | tail -n +2 | sed 's/:\ /=/' | xargs | sed 's/\ /,/g')
 			fi
-			echo "lnet_detail_stats,fs=${fs},net=${n},interface=${i},counter_type=${c} ${stats_line}"
+			echo "lnet_detail_stats,net=${n},interface=${i},counter_type=${c} ${stats_line}"
 		done
 	done
 done
